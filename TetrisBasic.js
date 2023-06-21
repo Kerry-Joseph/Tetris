@@ -4,6 +4,9 @@ let gBArrayHeight = 20 // height of gameboard - 20 squares vertical
 let gBArrayWidth = 12 // width of gameboard - 12 squares across
 let startX = 4 // start for tetris shape - 4 squares over
 let startY = 0 // start for tetris shape - top of board
+let score = 0
+let level = 1
+let winOrLose = "Playing"
 let coordinateArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0))
 let currentTetromino = [[1, 0], [0, 1], [1, 1], [2, 1]] // current tetris shape
 /* 
@@ -21,6 +24,8 @@ let currentTetrominoColor
 
 let gameBoardArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0))
 
+let stoppedShapeArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0))
+
 let DIRECTION = {
   IDLE: 0,
   DOWN: 1,
@@ -35,8 +40,6 @@ class Coordinates{
     this.y = y
   }
 }
-
-
 
 /*
   creates an object for each square on the gameboard, containing
@@ -55,6 +58,7 @@ const createCoordArray = () => {
 }
 
 
+
 const setupCanvas = () => {
   canvas = document.getElementById('my-canvas')
   ctx = canvas.getContext('2d') // provides canvas drawing functions 
@@ -69,6 +73,29 @@ const setupCanvas = () => {
   ctx.strokeStyle = 'black'
   ctx.strokeRect(8, 8, 280, 462) // (startX, startY, width, height)
 
+  ctx.fillStyle = 'black'
+  ctx.font = '21px Arial'
+  ctx.fillText("SCORE", 300, 90)
+
+  ctx.strokeRect(300, 107, 161, 24)
+
+  ctx.fillText(score.toString(), 310, 127)
+
+  ctx.fillText("LEVEL", 300, 157)
+  ctx.strokeRect(300, 171, 161, 24)
+  ctx.fillText(level.toString(), 310, 190)
+
+  ctx.fillText("WIN / LOSE", 300, 221)
+  ctx.fillText(winOrLose, 310, 261)
+  ctx.strokeRect(300, 232, 161, 95)  
+  ctx.fillText("CONTROLS", 300, 354)
+  ctx.strokeRect(300, 366, 161, 104)
+  ctx.font = '19px Arial'
+  ctx.fillText("A : Move Left", 310, 388)
+  ctx.fillText("D : Move Right", 310, 413)
+  ctx.fillText("S: Move Down", 310, 438)
+  ctx.fillText("E : Rotate Right", 310, 463)
+
   document.addEventListener('keydown', handleKeyPress)
   createTetrominos()
   createTetromino()
@@ -78,6 +105,8 @@ const setupCanvas = () => {
 }
 
 document.addEventListener('DOMContentLoaded', setupCanvas)
+
+
 
 const drawTetromino = () => {
   for(let i = 0; i < currentTetromino.length; i++){
@@ -92,22 +121,30 @@ const drawTetromino = () => {
 }
 
 const handleKeyPress = (key) => {
-  if(key.keyCode === 65){
-    direction = DIRECTION.LEFT
-    if(!hittingTheWall()){
-      deleteTetromino()
-      startX--
-      drawTetromino()
+  if(winOrLose != "Game Over"){
+    if(key.keyCode === 65){
+      direction = DIRECTION.LEFT
+      if(!hittingTheWall() && !checkForHerticalCollision()){
+        deleteTetromino()
+        startX--
+        drawTetromino()
+      }
+    } else if(key.keyCode === 68){
+      direction = DIRECTION.RIGHT
+      if(!hittingTheWall() && !checkForHerticalCollision()){
+        deleteTetromino()
+        startX++
+        drawTetromino()
+      }
+    } else if(key.keyCode === 83){
+      moveTetrominoDown()
     }
-  } else if(key.keyCode === 68){
-    direction = DIRECTION.RIGHT
-    if(!hittingTheWall()){
-      deleteTetromino()
-      startX++
-      drawTetromino()
-    }
-  } else if(key.keyCode === 83){
-    direction = DIRECTION.DOWN
+  }
+}
+
+const moveTetrominoDown = () => {
+  direction = DIRECTION.DOWN
+  if(!checkForVerticalCollision()){
     deleteTetromino()
     startY++
     drawTetromino()
@@ -159,4 +196,77 @@ const hittingTheWall = () => {
     }
   }
   return false
+}
+
+const checkForVerticalCollision = () => {
+  let tetrominoCopy = currentTetromino
+  let collision = false
+  for(let i = 0; i <  tetrominoCopy.length; i++){
+    let square = tetrominoCopy[i]
+    let x = square[0] + startX
+    let y = square[1] + startY
+    if(direction === DIRECTION.DOWN){
+      y++
+    }
+    if(gameBoardArray[x][y + 1] === 1){
+      if(typeof stoppedShapeArray[x][y + 1] === "string"){
+        deleteTetromino()
+        startY++
+        drawTetromino()
+        collision = true
+        break
+      }
+      if(y >= 20){
+        collision = true
+        break
+      }
+    }
+    console.log(collision , y)
+    if(collision){
+    console.log(collision , y)
+
+      if(startY <= 2){
+        winOrLose = "Game Over"
+        ctx.fillStyle = "white"
+        ctx.fillRect(310, 242, 140, 30)
+        ctx.fillStyle = 'black'
+        ctx.fillText(winOrLose, 310, 261)
+      } else {
+        for(let i = 0; i < tetrominoCopy.length; i++){
+          let square =  tetrominoCopy[i]
+          let x = square[0] + startX
+          let y = square[1] + startY
+          stoppedShapeArray[x][y] = currentTetrominoColor
+        }
+        checkForCompletedRows()
+        createTetromino()
+        direction = DIRECTION.IDLE
+        startX = 4
+        startY = 0
+        drawTetromino()
+      }
+    }
+  }
+}
+
+const checkForHorizontalCollision = () => {
+  let tetrominoCopy = currentTetromino
+  let collision = false
+  for(let i = 0; i <  tetrominoCopy.length; i++){
+    let square = tetrominoCopy[i]
+    let x = square[0] + startX
+    let y = square[1] + startY
+
+    if(direction === DIRECTION.LEFT){
+      x--
+    } else if(direction === DIRECTION.RIGHT){
+      x++
+    }
+    let stoppedShapeValue = stoppedShapeArray[x][y]
+    if(typeof stoppedShapeValue === 'string'){
+      collision = true
+      break
+    }
+  }
+  return collision
 }

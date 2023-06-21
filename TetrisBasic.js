@@ -36,10 +36,10 @@ class Coordinates{
   }
 }
 
-document.addEventListener('DOMContentLoaded', setupCanvas)
+
 
 /*
-  creates an object for each square on the gameboard containing
+  creates an object for each square on the gameboard, containing
   the squares coordinates (in pixels) 
 */
 const createCoordArray = () => {
@@ -69,9 +69,15 @@ const setupCanvas = () => {
   ctx.strokeStyle = 'black'
   ctx.strokeRect(8, 8, 280, 462) // (startX, startY, width, height)
 
+  document.addEventListener('keydown', handleKeyPress)
+  createTetrominos()
+  createTetromino()
+
   createCoordArray()  
   drawTetromino()
 }
+
+document.addEventListener('DOMContentLoaded', setupCanvas)
 
 const drawTetromino = () => {
   for(let i = 0; i < currentTetromino.length; i++){
@@ -83,4 +89,74 @@ const drawTetromino = () => {
     ctx.fillStyle = currentTetrominoColor
     ctx.fillRect(coorX, coorY, 21, 21)
   }
+}
+
+const handleKeyPress = (key) => {
+  if(key.keyCode === 65){
+    direction = DIRECTION.LEFT
+    if(!hittingTheWall()){
+      deleteTetromino()
+      startX--
+      drawTetromino()
+    }
+  } else if(key.keyCode === 68){
+    direction = DIRECTION.RIGHT
+    if(!hittingTheWall()){
+      deleteTetromino()
+      startX++
+      drawTetromino()
+    }
+  } else if(key.keyCode === 83){
+    direction = DIRECTION.DOWN
+    deleteTetromino()
+    startY++
+    drawTetromino()
+  }
+}
+
+const deleteTetromino = () => {
+  for(let i = 0; i < currentTetromino.length; i++){
+    let x = currentTetromino[i][0] + startX
+    let y = currentTetromino[i][1] + startY
+    gameBoardArray[x][y] = 0
+    let coorX = coordinateArray[x][y].x
+    let coorY = coordinateArray[x][y].y
+    ctx.fillStyle = 'white'
+    ctx.fillRect(coorX, coorY, 21, 21)
+  }
+}
+
+const createTetrominos = () => {
+  // T
+  tetrominos.push([[1, 0], [0, 1], [1, 1], [2, 1]])
+  // I
+  tetrominos.push([[0, 0], [1, 0], [2, 0], [3, 0]])
+  // J
+  tetrominos.push([[0, 0], [0, 1], [1, 1], [2, 1]])
+  // square
+  tetrominos.push([[0, 0], [1, 0], [0, 1], [1, 1]])
+  // L
+  tetrominos.push([[2, 0], [0, 1], [1, 1], [2, 1]])
+  // S
+  tetrominos.push([[1, 0], [2, 0], [0, 1], [1, 1]])
+  // Z
+  tetrominos.push([[0, 0], [1, 0], [1, 1], [2, 1]])
+}
+
+const createTetromino = () => {
+  let randomTetromino = Math.floor(Math.random() * tetrominos.length)
+  currentTetromino = tetrominos[randomTetromino]
+  currentTetrominoColor = tetrominoColors[randomTetromino]
+}
+
+const hittingTheWall = () => {
+  for(let i = 0; i < currentTetromino.length; i++){
+    let newX = currentTetromino[i][0] + startX
+    if(newX <= 0 && direction === DIRECTION.LEFT){
+      return true
+    } else if(newX >= 11 && direction === DIRECTION.RIGHT){
+      return true
+    }
+  }
+  return false
 }

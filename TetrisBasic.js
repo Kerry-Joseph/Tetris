@@ -124,14 +124,14 @@ const handleKeyPress = (key) => {
   if(winOrLose != "Game Over"){
     if(key.keyCode === 65){
       direction = DIRECTION.LEFT
-      if(!hittingTheWall() && !checkForHerticalCollision()){
+      if(!hittingTheWall() && !checkForHorizontalCollision()){
         deleteTetromino()
         startX--
         drawTetromino()
       }
     } else if(key.keyCode === 68){
       direction = DIRECTION.RIGHT
-      if(!hittingTheWall() && !checkForHerticalCollision()){
+      if(!hittingTheWall() && !checkForHorizontalCollision()){
         deleteTetromino()
         startX++
         drawTetromino()
@@ -208,23 +208,19 @@ const checkForVerticalCollision = () => {
     if(direction === DIRECTION.DOWN){
       y++
     }
-    if(gameBoardArray[x][y + 1] === 1){
-      if(typeof stoppedShapeArray[x][y + 1] === "string"){
-        deleteTetromino()
-        startY++
-        drawTetromino()
-        collision = true
-        break
-      }
-      if(y >= 20){
-        collision = true
-        break
-      }
+    if(typeof stoppedShapeArray[x][y + 1] === "string"){
+      deleteTetromino()
+      startY++
+      drawTetromino()
+      collision = true
+      break
     }
-    console.log(collision , y)
+    if(y >= 20){
+      collision = true
+      break
+    }  
+  }
     if(collision){
-    console.log(collision , y)
-
       if(startY <= 2){
         winOrLose = "Game Over"
         ctx.fillStyle = "white"
@@ -246,7 +242,6 @@ const checkForVerticalCollision = () => {
         drawTetromino()
       }
     }
-  }
 }
 
 const checkForHorizontalCollision = () => {
@@ -269,4 +264,66 @@ const checkForHorizontalCollision = () => {
     }
   }
   return collision
+}
+
+const checkForCompletedRows = () => {
+  let rowsToDelete = 0
+  let startOfDeletion = 0
+  for(let y = 0; y < gBArrayHeight; y++){
+    let completed = true
+    for(let x = 0; x < gBArrayWidth; x++){
+      let square = stoppedShapeArray[x][y]
+      if(square === 0 || typeof square === undefined) {
+        completed = false 
+        break
+      }
+    }
+    if(completed){
+      if(startOfDeletion === 0) startOfDeletion = y
+      rowsToDelete++
+      for(let i = 0; i < gBArrayWidth; i++){
+        stoppedShapeArray[i][y] = 0
+        gameBoardArray[i][y] = 0
+        let coorX = coordinateArray[i][y].x
+        let coorY = coordinateArray[i][y].y
+        ctx.fillStyle = 'white'
+        ctx.fillRect(coorX, coorY, 21, 21)
+      }  
+    }
+  }
+  if(rowsToDelete > 0){
+    score += 10
+    ctx.fillStyle = 'white'
+    ctx.fillRect(310, 109, 140, 19)
+    ctx.fillStyle = 'black'
+    ctx.fillText(score.toString(), 310, 127)
+    moveAllRowsDown(rowsToDelete, startOfDeletion)
+  }
+}
+
+const moveAllRowsDown = (rowsToDelete, startOfDeletion) => {
+  for(let i = startOfDeletion - 1; i >= 0; i--){
+    for(let x = 0; x < gBArrayWidth; x++){
+      let y2 = i + rowsToDelete
+      let square = stoppedShapeArray[x][i]
+      let nextSquare = stoppedShapeArray[x][y2]
+      if(typeof square == 'string'){
+        nextSquare =  square
+        gameBoardArray[x][y2] = 1
+        stoppedShapeArray[x][y2] = square
+        let coorX = coordinateArray[x][y2].x
+        let coorY = coordinateArray[x][y2].y
+        ctx.fillStyle = nextSquare
+        ctx.fillRect(coorX, coorY,21 ,21)
+
+        square = 0
+        gameBoardArray[x][i] = 0
+        stoppedShapeArray[x][i] = 0
+        coorX = coordinateArray[x][i].x
+        coorY = coordinateArray[x][i].y
+        ctx.fillStyle = 'white'
+        ctx.fillRect(coorX, coorY,21 ,21)
+      }
+    }
+  }
 }

@@ -138,6 +138,8 @@ const handleKeyPress = (key) => {
       }
     } else if(key.keyCode === 83){
       moveTetrominoDown()
+    } else if(key.keyCode === 69){
+      rotateTetromino()
     }
   }
 }
@@ -150,6 +152,12 @@ const moveTetrominoDown = () => {
     drawTetromino()
   }
 }
+
+window.setInterval(() => {
+  if(winOrLose != "Game Over"){
+    moveTetrominoDown()
+  }
+}, 1000)
 
 const deleteTetromino = () => {
   for(let i = 0; i < currentTetromino.length; i++){
@@ -326,4 +334,40 @@ const moveAllRowsDown = (rowsToDelete, startOfDeletion) => {
       }
     }
   }
+}
+
+
+const rotateTetromino = () => {
+  let newRotation = new Array()
+  let tetrominoCopy = currentTetromino
+  let currentTetrominoBackup
+  for(let i = 0; i < tetrominoCopy.length; i++){
+    currentTetrominoBackup = [...currentTetromino]
+    let x = tetrominoCopy[i][0]
+    let y =  tetrominoCopy[i][1]
+    let newX = (GetLastSquareX() - y)
+    let newY = x
+    newRotation.push([newX, newY])
+  }
+  deleteTetromino()
+  try {
+    currentTetromino = newRotation
+    drawTetromino()
+  } catch (err) {
+    if(err instanceof TypeError){
+      currentTetromino = currentTetrominoBackup
+      deleteTetromino()
+      drawTetromino()
+    }
+  }
+}
+
+const GetLastSquareX = () => {
+  let lastX = 0
+  for(let i = 0; i < currentTetromino.length; i++){
+    let square = currentTetromino[i]
+    if(square[0] > lastX)
+      lastX = square[0]
+  }
+  return lastX
 }

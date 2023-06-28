@@ -281,7 +281,7 @@ const checkForCompletedRows = () => {
     let completed = true
     for(let x = 0; x < gBArrayWidth; x++){
       let square = stoppedShapeArray[x][y]
-      if(square === 0 || typeof square === undefined) {
+      if(square === 0 || square === undefined) {
         completed = false 
         break
       }

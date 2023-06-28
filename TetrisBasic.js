@@ -18,7 +18,15 @@ A Tetromino is made up of 4 (x, y) coordinates
       2
 
 */
-let tetrominos = []
+let tetrominos = [
+  [[1, 0], [0, 1], [1, 1], [2, 1]], // T
+  [[0, 0], [1, 0], [2, 0], [3, 0]], // I
+  [[0, 0], [0, 1], [1, 1], [2, 1]], // J
+  [[0, 0], [1, 0], [0, 1], [1, 1]], // square
+  [[2, 0], [0, 1], [1, 1], [2, 1]], // L
+  [[1, 0], [2, 0], [0, 1], [1, 1]], // S
+  [[0, 0], [1, 0], [1, 1], [2, 1]]  // Z
+]
 let tetrominoColors = ['purple', 'cyan', 'blue', 'yellow', 'orange', 'green', 'red']
 let currentTetrominoColor
 
@@ -57,8 +65,6 @@ const createCoordArray = () => {
   }
 }
 
-
-
 const setupCanvas = () => {
   canvas = document.getElementById('my-canvas')
   ctx = canvas.getContext('2d') // provides canvas drawing functions 
@@ -85,9 +91,6 @@ const setupCanvas = () => {
   ctx.strokeRect(300, 171, 161, 24)
   ctx.fillText(level.toString(), 310, 190)
 
-  ctx.fillText("WIN / LOSE", 300, 221)
-  ctx.fillText(winOrLose, 310, 261)
-  ctx.strokeRect(300, 232, 161, 95)  
   ctx.fillText("CONTROLS", 300, 354)
   ctx.strokeRect(300, 366, 161, 104)
   ctx.font = '19px Arial'
@@ -97,9 +100,7 @@ const setupCanvas = () => {
   ctx.fillText("E : Rotate Right", 310, 463)
 
   document.addEventListener('keydown', handleKeyPress)
-  createTetrominos()
   createTetromino()
-
   createCoordArray()  
   drawTetromino()
 }
@@ -171,23 +172,6 @@ const deleteTetromino = () => {
   }
 }
 
-const createTetrominos = () => {
-  // T
-  tetrominos.push([[1, 0], [0, 1], [1, 1], [2, 1]])
-  // I
-  tetrominos.push([[0, 0], [1, 0], [2, 0], [3, 0]])
-  // J
-  tetrominos.push([[0, 0], [0, 1], [1, 1], [2, 1]])
-  // square
-  tetrominos.push([[0, 0], [1, 0], [0, 1], [1, 1]])
-  // L
-  tetrominos.push([[2, 0], [0, 1], [1, 1], [2, 1]])
-  // S
-  tetrominos.push([[1, 0], [2, 0], [0, 1], [1, 1]])
-  // Z
-  tetrominos.push([[0, 0], [1, 0], [1, 1], [2, 1]])
-}
-
 const createTetromino = () => {
   let randomTetromino = Math.floor(Math.random() * tetrominos.length)
   currentTetromino = tetrominos[randomTetromino]
@@ -231,10 +215,8 @@ const checkForVerticalCollision = () => {
     if(collision){
       if(startY <= 2){
         winOrLose = "Game Over"
-        ctx.fillStyle = "white"
-        ctx.fillRect(310, 242, 140, 30)
-        ctx.fillStyle = 'black'
-        ctx.fillText(winOrLose, 310, 261)
+        const gameOverScreen = document.querySelector('#game-over')
+        gameOverScreen.style.display = 'flex'
       } else {
         for(let i = 0; i < tetrominoCopy.length; i++){
           let square =  tetrominoCopy[i]
@@ -336,7 +318,6 @@ const moveAllRowsDown = (rowsToDelete, startOfDeletion) => {
   }
 }
 
-
 const rotateTetromino = () => {
   let newRotation = new Array()
   let tetrominoCopy = currentTetromino
@@ -345,7 +326,7 @@ const rotateTetromino = () => {
     currentTetrominoBackup = [...currentTetromino]
     let x = tetrominoCopy[i][0]
     let y =  tetrominoCopy[i][1]
-    let newX = (GetLastSquareX() - y)
+    let newX = (getLastSquareX() - y)
     let newY = x
     newRotation.push([newX, newY])
   }
@@ -362,7 +343,7 @@ const rotateTetromino = () => {
   }
 }
 
-const GetLastSquareX = () => {
+const getLastSquareX = () => {
   let lastX = 0
   for(let i = 0; i < currentTetromino.length; i++){
     let square = currentTetromino[i]

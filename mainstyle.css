@@ -1,6 +1,8 @@
 body {
-  text-align: center;
   background: #fff;
+  position: relative;
+  text-align: center;
+  font-family: 'Belanosima', sans-serif;
 }
 
 #my-canvas {
@@ -8,3 +10,40 @@ body {
   margin-left: 10px;
   margin-top: 10px;
 }
+
+#game-over {
+  margin: 0;
+  color: red;
+  height: 100%;
+  width: 100%;
+  display: none;
+  justify-content: center;
+  align-items: center;
+  position: absolute;
+  top: 0;
+  font-size: 80px;
+  background-color: rgba(0, 0, 0, .5);
+  border-radius: 10px;
+  text-shadow: black -2px 2px 2px;
+  font-weight: 600; 
+  flex-direction: column;
+}
+
+#game-over > button {
+  background-color: gray;
+  font-size: 30px;
+  margin: 10px;
+  padding: 10px;
+  padding-left: 30px;
+  padding-right: 30px;
+  font-weight: 600;
+  color: white;
+  border-radius: 20px;
+  border: white 2px solid;
+}
+
+#game-over > button:hover {
+  color: red;
+  background-color: white;
+  cursor: pointer;
+} 

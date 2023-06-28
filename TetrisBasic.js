@@ -9,6 +9,8 @@ let level = 1
 let winOrLose = "Playing"
 let coordinateArray = [...Array(gBArrayHeight)].map(e => Array(gBArrayWidth).fill(0))
 let currentTetromino = [[1, 0], [0, 1], [1, 1], [2, 1]] // current tetris shape
+
+
 /* 
 A Tetromino is made up of 4 (x, y) coordinates
     ex.
@@ -158,7 +160,7 @@ window.setInterval(() => {
   if(winOrLose != "Game Over"){
     moveTetrominoDown()
   }
-}, 1000)
+}, 1000 / level)
 
 const deleteTetromino = () => {
   for(let i = 0; i < currentTetromino.length; i++){
@@ -282,7 +284,8 @@ const checkForCompletedRows = () => {
     }
   }
   if(rowsToDelete > 0){
-    score += 10
+    score += rowsToDelete * 10
+
     ctx.fillStyle = 'white'
     ctx.fillRect(310, 109, 140, 19)
     ctx.fillStyle = 'black'

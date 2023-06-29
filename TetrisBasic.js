@@ -72,7 +72,7 @@ const setupCanvas = () => {
   canvas.width = 936
   canvas.height = 956
 
-  ctx.scale(2, 2) 
+  ctx.scale(1.8, 1.8) 
 
   ctx.fillStyle = 'white'
   ctx.fillRect(0, 0, canvas.width, canvas.height)
@@ -107,8 +107,6 @@ const setupCanvas = () => {
 }
 
 document.addEventListener('DOMContentLoaded', setupCanvas)
-
-
 
 const drawTetromino = () => {
   for(let i = 0; i < currentTetromino.length; i++){
